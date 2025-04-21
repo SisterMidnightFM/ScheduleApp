@@ -186,6 +186,20 @@
                 height: 500px;
             }
         }
+
+        .font-size-control {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .font-size-control label {
+            font-weight: bold;
+        }
+
+        .font-size-control input[type="range"] {
+            flex: 1;
+        }
     </style>
 </head>
 <body>
@@ -213,6 +227,18 @@
             <button class="download-btn" onclick="downloadImage()">Download Schedule Image</button>
             
             <p class="note">Note: Make sure to select a template first, then add your schedule information.</p>
+
+            <div class="font-size-control">
+                <label for="font-size-slider">Font Size:</label>
+                <input 
+                    type="range" 
+                    id="font-size-slider" 
+                    min="20" 
+                    max="100" 
+                    value="60" 
+                    oninput="updateCanvas()"
+                >
+            </div>
         </div>
         
         <!-- Right Preview Panel -->
@@ -343,6 +369,9 @@
                     ctx.fillStyle = '#333'; // Default text color
             }
             
+            // Get the font size from the slider
+            const fontSize = document.getElementById('font-size-slider').value;
+            
             // Get all schedule inputs
             const inputRows = document.querySelectorAll('.input-row');
             
@@ -355,11 +384,11 @@
             // Calculate available height for text
             const availableHeight = bottomMargin - topMargin;
             
-            // Calculate line height based on number of shows
-            const lineHeight = Math.min(120, availableHeight / inputRows.length);
+            // Calculate line height based on font size
+            const lineHeight = parseInt(fontSize) * 1.2;
             
             // Set font style
-            ctx.font = `${lineHeight * 0.6}px CustomFont, Arial`;
+            ctx.font = `${fontSize}px CustomFont, Arial`;
             
             // Draw each show entry
             let currentY = topMargin; // Track the current Y position
@@ -374,13 +403,19 @@
                 // Draw each line of the wrapped show name
                 ctx.textAlign = 'left';
                 wrappedText.forEach((line) => {
+                    if (currentY + lineHeight > bottomMargin) {
+                        console.warn('Text exceeds canvas boundaries. Adjust font size or reduce content.');
+                        return;
+                    }
                     ctx.fillText(line, leftMargin, currentY);
-                    currentY += lineHeight * 0.8; // Adjust Y position for the next line
+                    currentY += lineHeight; // Adjust Y position for the next line
                 });
         
                 // Draw show time (right aligned)
                 ctx.textAlign = 'right';
-                ctx.fillText(showTime, canvas.width - 120, currentY - (lineHeight * 0.8)); // Align with the last line of the show name
+                if (currentY - lineHeight <= bottomMargin) {
+                    ctx.fillText(showTime, canvas.width - 120, currentY - lineHeight); // Align with the last line of the show name
+                }
         
                 // Move to the next row
                 currentY += lineHeight * 0.2; // Add some spacing between rows
