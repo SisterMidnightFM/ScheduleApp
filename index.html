@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SMFM Radio Schedule Generator</title>
+    <style>
+        @font-face {
+            font-family: 'CustomFont';
+            src: url('font.otf') format('opentype');
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+        }
+        
+        body {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            background-color: #f5f5f5;
+            padding: 20px;
+        }
+        
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        .app-container {
+            display: flex;
+            flex: 1;
+            gap: 20px;
+        }
+        
+        .control-panel {
+            flex: 1;
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            max-width: 500px;
+        }
+        
+        .preview-panel {
+            flex: 1;
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .template-selector {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+        
+        .template-btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+        
+        .template-btn.green {
+            background-color: #4CAF50;
+            color: white;
+        }
+        
+        .template-btn.grey {
+            background-color: #9E9E9E;
+            color: white;
+        }
+        
+        .template-btn.red {
+            background-color: #F44336;
+            color: white;
+        }
+        
+        .template-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        .schedule-inputs {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        
+        .input-row {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .input-field {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        
+        .add-row-btn {
+            width: 100%;
+            padding: 10px;
+            background-color: #2196F3;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-top: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+        }
+        
+        .add-row-btn:hover {
+            background-color: #0b7dda;
+        }
+        
+        .download-btn {
+            padding: 12px 24px;
+            background-color: #673AB7;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            margin-top: 20px;
+            transition: all 0.3s ease;
+        }
+        
+        .download-btn:hover {
+            background-color: #5e35b1;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        #preview-container {
+            position: relative;
+            width: 540px;  /* Half size for display */
+            height: 675px; /* Half size for display */
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+            margin-top: 20px;
+        }
+        
+        canvas {
+            width: 100%;
+            height: 100%;
+        }
+        
+        .note {
+            font-size: 12px;
+            color: #666;
+            margin-top: 10px;
+            text-align: center;
+        }
+        
+        @media (max-width: 1024px) {
+            .app-container {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .control-panel, .preview-panel {
+                width: 100%;
+                max-width: 600px;
+            }
+            
+            #preview-container {
+                width: 400px;
+                height: 500px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>SMFM Radio Schedule Generator v1.0</h1>
+    
+    <div class="app-container">
+        <!-- Left Control Panel -->
+        <div class="control-panel">
+            <h2>Template Selection</h2>
+            <div class="template-selector">
+                <button class="template-btn green" onclick="selectTemplate('green')">Green</button>
+                <button class="template-btn grey" onclick="selectTemplate('grey')">Grey</button>
+                <button class="template-btn red" onclick="selectTemplate('red')">Red</button>
+            </div>
+            
+            <h2>Schedule Information</h2>
+            <div class="schedule-inputs" id="schedule-inputs">
+                <!-- This will be populated by JS -->
+            </div>
+            
+            <button class="add-row-btn" onclick="addInputRow()">
+                <span>+</span> Add Show
+            </button>
+            
+            <button class="download-btn" onclick="downloadImage()">Download Schedule Image</button>
+            
+            <p class="note">Note: Make sure to select a template first, then add your schedule information.</p>
+        </div>
+        
+        <!-- Right Preview Panel -->
+        <div class="preview-panel">
+            <h2>Preview</h2>
+            <div id="preview-container">
+                <canvas id="previewCanvas" width="1080" height="1350"></canvas>
+            </div>
+            <p class="note">Preview is shown at 50% scale. Downloaded image will be full 1080x1350px.</p>
+        </div>
+    </div>
+    
+    <script>
+        // Global variables
+        let canvas = document.getElementById('previewCanvas');
+        let ctx = canvas.getContext('2d');
+        let selectedTemplate = null;
+        let backgroundImage = null;
+        let customFont = null;
+        
+        // Initialize the app when window loads
+        window.onload = function() {
+            // Set initial blank state
+            ctx.fillStyle = '#f5f5f5';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = '#333';
+            ctx.font = '30px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText('Please select a template', canvas.width/2, canvas.height/2);
+            
+            // Initialize with two empty input rows
+            addInputRow();
+            addInputRow();
+            
+            // Load the custom font
+            loadCustomFont();
+        }
+        
+        // Function to load custom font
+        function loadCustomFont() {
+            // Use FontFace API to load custom font
+            const font = new FontFace('CustomFont', 'url(font.otf)');
+            
+            font.load().then(function(loadedFont) {
+                // Font is loaded
+                document.fonts.add(loadedFont);
+                customFont = loadedFont;
+                console.log('Custom font loaded successfully');
+                
+                // Redraw the canvas if needed
+                if (selectedTemplate) {
+                    updateCanvas();
+                }
+            }).catch(function(error) {
+                console.error('Error loading custom font:', error);
+            });
+        }
+        
+        // Function to select template and load background image
+        function selectTemplate(template) {
+            selectedTemplate = template;
+            
+            // Load the selected background image
+            backgroundImage = new Image();
+            backgroundImage.onload = function() {
+                updateCanvas();
+            };
+            backgroundImage.onerror = function() {
+                console.error('Error loading background image: ' + template + '.png');
+                alert('Error loading background image. Make sure ' + template + '.png exists in the same folder.');
+            };
+            
+            // Set the source of the image to the selected template
+            backgroundImage.src = template + '.png';
+            
+            // Update the canvas to reflect the new template
+            updateCanvas();
+        }
+        
+        // Function to add a new input row
+        function addInputRow() {
+            const inputsContainer = document.getElementById('schedule-inputs');
+            const newRow = document.createElement('div');
+            newRow.className = 'input-row';
+            
+            // Create show name input
+            const showNameInput = document.createElement('input');
+            showNameInput.className = 'input-field';
+            showNameInput.placeholder = 'Show Name';
+            showNameInput.addEventListener('input', updateCanvas);
+            
+            // Create show time input
+            const showTimeInput = document.createElement('input');
+            showTimeInput.className = 'input-field';
+            showTimeInput.placeholder = 'Time (e.g., 2-4pm)';
+            showTimeInput.addEventListener('input', updateCanvas);
+            
+            // Add inputs to the row
+            newRow.appendChild(showNameInput);
+            newRow.appendChild(showTimeInput);
+            
+            // Add the row to the container
+            inputsContainer.appendChild(newRow);
+        }
+        
+        // Function to update the canvas based on inputs
+        function updateCanvas() {
+            // Clear the canvas
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Draw background if template is selected
+            if (backgroundImage) {
+                ctx.drawImage(backgroundImage, 0, 0, canvas.width, canvas.height);
+            }
+            
+            // Set text color based on the selected template
+            switch (selectedTemplate) {
+                case 'green':
+                    ctx.fillStyle = '#FCE7A8';
+                    break;
+                case 'grey':
+                    ctx.fillStyle = '#352B27';
+                    break;
+                case 'red':
+                    ctx.fillStyle = '#FFFFFF';
+                    break;
+                default:
+                    ctx.fillStyle = '#333'; // Default text color
+            }
+            
+            // Get all schedule inputs
+            const inputRows = document.querySelectorAll('.input-row');
+            
+            // Define boundaries for text placement
+            const leftMargin = 120;
+            const rightMargin = canvas.width / 2; // Limit to halfway across the canvas
+            const topMargin = 480;
+            const bottomMargin = canvas.height - 200;
+            
+            // Calculate available height for text
+            const availableHeight = bottomMargin - topMargin;
+            
+            // Calculate line height based on number of shows
+            const lineHeight = Math.min(120, availableHeight / inputRows.length);
+            
+            // Set font style
+            ctx.font = `${lineHeight * 0.6}px CustomFont, Arial`;
+            
+            // Draw each show entry
+            let currentY = topMargin; // Track the current Y position
+            inputRows.forEach((row) => {
+                const showName = row.children[0].value;
+                const showTime = row.children[1].value;
+        
+                // Wrap long show names
+                const maxWidth = rightMargin - leftMargin; // Adjusted maxWidth
+                const wrappedText = wrapText(showName, maxWidth);
+        
+                // Draw each line of the wrapped show name
+                ctx.textAlign = 'left';
+                wrappedText.forEach((line) => {
+                    ctx.fillText(line, leftMargin, currentY);
+                    currentY += lineHeight * 0.8; // Adjust Y position for the next line
+                });
+        
+                // Draw show time (right aligned)
+                ctx.textAlign = 'right';
+                ctx.fillText(showTime, canvas.width - 120, currentY - (lineHeight * 0.8)); // Align with the last line of the show name
+        
+                // Move to the next row
+                currentY += lineHeight * 0.2; // Add some spacing between rows
+            });
+        }
+        
+        // Helper function to wrap text
+        function wrapText(text, maxWidth) {
+            const words = text.split(' ');
+            const lines = [];
+            let currentLine = words[0];
+        
+            for (let i = 1; i < words.length; i++) {
+                const word = words[i];
+                const width = ctx.measureText(currentLine + ' ' + word).width;
+                if (width < maxWidth) {
+                    currentLine += ' ' + word;
+                } else {
+                    lines.push(currentLine);
+                    currentLine = word;
+                }
+            }
+            lines.push(currentLine); // Add the last line
+            return lines;
+        }
+        
+        // Function to download the canvas as an image
+        function downloadImage() {
+            if (!selectedTemplate) {
+                alert('Please select a template first!');
+                return;
+            }
+
+            // Get the current date
+            const currentDate = new Date();
+            const formattedDate = currentDate.toISOString().split('T')[0]; // Format as YYYY-MM-DD
+
+            // Create a temporary link element
+            const link = document.createElement('a');
+            link.download = `radio-schedule-${formattedDate}.png`; // Add the date to the filename
+
+            // Convert canvas to data URL
+            link.href = canvas.toDataURL('image/png');
+
+            // Append to body, click and remove
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+    </script>
+</body>
+</html>
