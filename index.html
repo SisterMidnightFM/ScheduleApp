@@ -88,6 +88,16 @@
             background-color: #F44336;
             color: white;
         }
+
+        .template-btn.blue {
+            background-color: #2196F3; /* Blue color */
+            color: white;
+        }
+
+        .template-btn.dark-red {
+            background-color: #8B0000; /* Dark Red color */
+            color: white;
+        }
         
         .template-btn:hover {
             transform: translateY(-2px);
@@ -203,7 +213,7 @@
     </style>
 </head>
 <body>
-    <h1>SMFM Radio Schedule Generator v1.0</h1>
+    <h1>SMFM Radio Schedule Generator v1.1</h1>
     
     <div class="app-container">
         <!-- Left Control Panel -->
@@ -213,8 +223,20 @@
                 <button class="template-btn green" onclick="selectTemplate('green')">Green</button>
                 <button class="template-btn grey" onclick="selectTemplate('grey')">Grey</button>
                 <button class="template-btn red" onclick="selectTemplate('red')">Red</button>
+                <button class="template-btn blue" onclick="selectTemplate('blue')">Blue</button>
+                <button class="template-btn dark-red" onclick="selectTemplate('dark-red')">Dark Red</button> <!-- New Dark Red Button -->
             </div>
-            
+
+            <h2>Date Select</h2>
+            <div class="date-select">
+                <input 
+                    type="date" 
+                    id="date-picker" 
+                    onchange="updateCanvas()" 
+                    style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;"
+                >
+            </div>
+
             <h2>Schedule Information</h2>
             <div class="schedule-inputs" id="schedule-inputs">
                 <!-- This will be populated by JS -->
@@ -300,7 +322,7 @@
         // Function to select template and load background image
         function selectTemplate(template) {
             selectedTemplate = template;
-            
+
             // Load the selected background image
             backgroundImage = new Image();
             backgroundImage.onload = function() {
@@ -310,14 +332,14 @@
                 console.error('Error loading background image: ' + template + '.png');
                 alert('Error loading background image. Make sure ' + template + '.png exists in the same folder.');
             };
-            
+
             // Set the source of the image to the selected template
-            backgroundImage.src = template + '.png';
-            
+            backgroundImage.src = template === 'dark-red' ? 'dark_red.png' : template + '.png'; // Use dark_red.png for dark red template
+
             // Update the canvas to reflect the new template
             updateCanvas();
         }
-        
+
         // Function to add a new input row
         function addInputRow() {
             const inputsContainer = document.getElementById('schedule-inputs');
@@ -365,6 +387,12 @@
                 case 'red':
                     ctx.fillStyle = '#FFFFFF';
                     break;
+                case 'blue':
+                    ctx.fillStyle = '#FFEAAB';
+                    break;
+                case 'dark-red': // New case for dark red template
+                    ctx.fillStyle = '#EDCD97';
+                    break;
                 default:
                     ctx.fillStyle = '#333'; // Default text color
             }
@@ -378,7 +406,7 @@
             // Define boundaries for text placement
             const leftMargin = 120;
             const rightMargin = canvas.width / 2; // Limit to halfway across the canvas
-            const topMargin = 480;
+            const topMargin = 480 + 60; // Lowered by 25px
             const bottomMargin = canvas.height - 200;
             
             // Calculate available height for text
@@ -391,7 +419,7 @@
             ctx.font = `${fontSize}px CustomFont, Arial`;
             
             // Draw each show entry
-            let currentY = topMargin; // Track the current Y position
+            let currentY = topMargin; // Updated starting position
             inputRows.forEach((row) => {
                 const showName = row.children[0].value;
                 const showTime = row.children[1].value;
@@ -420,6 +448,22 @@
                 // Move to the next row
                 currentY += lineHeight * 0.2; // Add some spacing between rows
             });
+
+            // Draw the selected date at the top of the canvas
+            const datePicker = document.getElementById('date-picker');
+            const selectedDate = datePicker.value;
+            if (selectedDate) {
+                const dateObj = new Date(selectedDate);
+                const day = dateObj.toLocaleString('en-US', { weekday: 'long' });
+                const dayNumber = dateObj.getDate();
+                const month = dateObj.toLocaleString('en-US', { month: 'long' });
+                const year = dateObj.getFullYear();
+                const formattedDate = `${day} ${dayNumber}${getOrdinalSuffix(dayNumber)} ${month} ${year}`;
+                
+                ctx.textAlign = 'center';
+                ctx.font = `${fontSize}px CustomFont, Arial`;
+                ctx.fillText(formattedDate, canvas.width / 2, 425); // Adjusted position to 325px from the top
+            }
         }
         
         // Helper function to wrap text
@@ -440,6 +484,21 @@
             }
             lines.push(currentLine); // Add the last line
             return lines;
+        }
+
+        // Helper function to get ordinal suffix for a number
+        function getOrdinalSuffix(number) {
+            const j = number % 10, k = number % 100;
+            if (j === 1 && k !== 11) {
+                return "st";
+            }
+            if (j === 2 && k !== 12) {
+                return "nd";
+            }
+            if (j === 3 && k !== 13) {
+                return "rd";
+            }
+            return "th";
         }
         
         // Function to download the canvas as an image
