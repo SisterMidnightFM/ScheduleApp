@@ -6,6 +6,7 @@
     <title>SMFM Radio Schedule Generator</title>
     <link rel="stylesheet" href="styles.css">
     <script src="config.js"></script>
+    <script src="layout.js"></script>
 </head>
 <body>
     <h1>SMFM Radio Schedule Generator</h1>
@@ -53,9 +54,24 @@
                 <div class="section-title">Font Size</div>
                 <div class="font-size-control">
                     <button class="font-size-btn" onclick="decreaseFontSize()">-</button>
-                    <span class="font-size-value" id="font-size-value">35px</span>
+                    <span class="font-size-value" id="font-size-value"></span>
                     <button class="font-size-btn" onclick="increaseFontSize()">+</button>
                 </div>
+            </div>
+
+            <div>
+                <div class="section-title">Row Gap</div>
+                <div class="font-size-control">
+                    <button class="font-size-btn" onclick="decreaseRowGap()">-</button>
+                    <span class="font-size-value" id="row-gap-value"></span>
+                    <button class="font-size-btn" onclick="increaseRowGap()">+</button>
+                </div>
+            </div>
+
+            <div>
+                <div class="section-title">Colours</div>
+                <p class="colour-hint">Top = text &amp; image &nbsp;&middot;&nbsp; Bottom = background</p>
+                <div class="combo-grid" id="colourComboGrid"></div>
             </div>
 
             <button class="download-btn" onclick="downloadImage()">Download Schedule Image</button>
