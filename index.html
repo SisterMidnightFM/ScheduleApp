@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SMFM Radio Schedule Generator</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="config.js"></script>
+</head>
+<body>
+    <h1>SMFM Radio Schedule Generator</h1>
+
+    <div class="app-container">
+        <!-- Left Control Panel -->
+        <div class="control-panel">
+            <div>
+                <div class="section-title">Date</div>
+                <input
+                    type="date"
+                    id="date-picker"
+                    class="date-picker"
+                    onchange="updateCanvas()"
+                >
+            </div>
+
+            <div>
+                <div class="section-title">Input Mode</div>
+                <div class="mode-toggle">
+                    <button class="mode-btn active" onclick="setMode('manual')" id="manual-btn">Manual Input</button>
+                    <button class="mode-btn" onclick="setMode('calendar')" id="calendar-btn">Google Calendar</button>
+                </div>
+            </div>
+
+            <!-- Manual Input Section -->
+            <div class="input-section active" id="manual-section">
+                <div class="section-title">Schedule Information</div>
+                <div class="schedule-inputs" id="schedule-inputs"></div>
+                <button class="add-row-btn" onclick="addInputRow()">
+                    <span>+</span> Add Show
+                </button>
+            </div>
+
+            <!-- Calendar Section -->
+            <div class="input-section" id="calendar-section">
+                <div class="section-title">Google Calendar</div>
+                <button class="fetch-btn" onclick="fetchCalendarEvents()" id="fetch-btn">
+                    Fetch Shows for Selected Date
+                </button>
+                <div class="calendar-status" id="calendar-status"></div>
+            </div>
+
+            <div>
+                <div class="section-title">Font Size</div>
+                <div class="font-size-control">
+                    <button class="font-size-btn" onclick="decreaseFontSize()">-</button>
+                    <span class="font-size-value" id="font-size-value">35px</span>
+                    <button class="font-size-btn" onclick="increaseFontSize()">+</button>
+                </div>
+            </div>
+
+            <button class="download-btn" onclick="downloadImage()">Download Schedule Image</button>
+
+            <p class="note">Preview shown at 50% scale. Downloaded image will be full 1080x1350px.</p>
+        </div>
+
+        <!-- Right Preview Panel -->
+        <div class="preview-panel">
+            <h2>Preview</h2>
+            <div id="preview-container">
+                <canvas id="previewCanvas" width="1080" height="1350"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
