@@ -111,7 +111,7 @@ async function fetchCalendarEvents() {
     }
 
     if (API_KEY === 'YOUR_API_KEY_HERE' || !API_KEY) {
-        statusEl.textContent = 'API key not configured. Add your Google API key to .env.';
+        statusEl.textContent = 'API key not configured. Add your Google API key to env.js.';
         statusEl.className = 'calendar-status error';
         return;
     }

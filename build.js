@@ -1,15 +1,15 @@
 const fs = require('fs');
 
-const { CALENDAR_ID, API_KEY } = process.env;
+const { CALENDAR_ID, API_KEY } = processenv.js;
 
 if (!CALENDAR_ID || !API_KEY) {
-    console.warn('Warning: CALENDAR_ID or API_KEY env var missing — .env not written');
+    console.warn('Warning: CALENDAR_ID or API_KEY env var missing — env.js not written');
     process.exit(0);
 }
 
-fs.writeFileSync('.env', `const CONFIG = {
+fs.writeFileSync('env.js', `const CONFIG = {
     CALENDAR_ID: '${CALENDAR_ID}',
     API_KEY: '${API_KEY}'
 };\n`);
 
-console.log('.env written from environment variables');
+console.log('env.js written from environment variables');
