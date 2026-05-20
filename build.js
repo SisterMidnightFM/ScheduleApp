@@ -1,6 +1,6 @@
 const fs = require('fs');
 
-const { CALENDAR_ID, API_KEY } = processenv.js;
+const { CALENDAR_ID, API_KEY } = process.env;
 
 if (!CALENDAR_ID || !API_KEY) {
     console.warn('Warning: CALENDAR_ID or API_KEY env var missing — env.js not written');
