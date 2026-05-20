@@ -1,6 +1,6 @@
 // Configuration loaded from config.js
-const CALENDAR_ID = CONFIG.CALENDAR_ID;
-const API_KEY = CONFIG.API_KEY;
+const CALENDAR_ID = typeof CONFIG !== 'undefined' ? CONFIG.CALENDAR_ID : null;
+const API_KEY     = typeof CONFIG !== 'undefined' ? CONFIG.API_KEY     : null;
 
 function getCSSVar(name) {
     return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
